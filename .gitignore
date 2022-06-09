@@ -1,0 +1,3 @@
+#Vamos a ignorar las carpetas node_modules y dist porq se generan con el comando npm run build
+node_modules
+dist

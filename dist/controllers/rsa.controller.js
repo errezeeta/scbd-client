@@ -31,10 +31,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateBothKeys = void 0;
+exports.getServerPubK = exports.generateBothKeys = void 0;
 const rsa_1 = require("@scbd/rsa");
 const bic = __importStar(require("bigint-conversion"));
+const index_1 = __importDefault(require("../index"));
 const bitLength = 1024;
 function generateBothKeys(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -47,4 +51,14 @@ function generateBothKeys(req, res) {
     });
 }
 exports.generateBothKeys = generateBothKeys;
+function getServerPubK(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const key = {
+            e: (yield index_1.default).e,
+            n: (yield index_1.default).n
+        };
+        return res.status(201).json(key);
+    });
+}
+exports.getServerPubK = getServerPubK;
 //# sourceMappingURL=rsa.controller.js.map

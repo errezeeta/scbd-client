@@ -28,5 +28,7 @@ const rsa = __importStar(require("../controllers/rsa.controller"));
 const rsaRouter = (0, express_1.Router)();
 rsaRouter.route('/generateKeys')
     .get(rsa.generateBothKeys);
+rsaRouter.route('/pubK_CE')
+    .get(rsa.getServerPubK);
 exports.default = rsaRouter;
 //# sourceMappingURL=rsa.route.js.map
