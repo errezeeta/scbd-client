@@ -30,5 +30,7 @@ rsaRouter.route('/generateKeys')
     .get(rsa.generateBothKeys);
 rsaRouter.route('/pubK_CE')
     .get(rsa.getServerPubK);
+rsaRouter.route('/sign')
+    .get(rsa.signMsg);
 exports.default = rsaRouter;
 //# sourceMappingURL=rsa.route.js.map

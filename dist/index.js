@@ -44,12 +44,13 @@ function main() {
         const keyPair = yield (0, rsa_1.generateKeys)(bitLength);
         const key = {
             e: bic.bigintToBase64(keyPair.publicKey.e),
-            n: bic.bigintToBase64(keyPair.publicKey.n)
+            n: bic.bigintToBase64(keyPair.publicKey.n),
+            r: bic.bigintToBase64(keyPair.privateKey.d)
         };
         const PORT = app_1.default.get('PORT');
         yield app_1.default.listen(PORT);
         console.log('Servidor abierto en: ', PORT);
-        return key;
+        return keyPair;
     });
 }
 const keys = main();

@@ -16,9 +16,10 @@ export async function generateBothKeys(req: Request, res: Response): Promise<Res
 }
 
 export async function getServerPubK(req: Request, res: Response): Promise<Response>{
+	//añadir condicion login
 	const key = {
-		e: await (await keys).publicKey.e,
-		n: await (await keys).publicKey.n
+		e: bic.bigintToBase64(await (await keys).publicKey.e),
+		n: bic.bigintToBase64(await (await keys).publicKey.n)
 	}
 	return res.status(201).json(key);
 }
