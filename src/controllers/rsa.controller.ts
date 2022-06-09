@@ -17,8 +17,16 @@ export async function generateBothKeys(req: Request, res: Response): Promise<Res
 
 export async function getServerPubK(req: Request, res: Response): Promise<Response>{
 	const key = {
-		e: (await keys).e,
-		n: (await keys).n
+		e: await (await keys).publicKey.e,
+		n: await (await keys).publicKey.n
 	}
 	return res.status(201).json(key);
+}
+
+export async function signMsg(req: Request, res: Response): Promise<Response>{
+	const msg = req.body
+	const privKey: RsaPrivateKey = await (await keys).privateKey;
+	const signed: string = await bic.bigintToBase64(privKey.sign(msg))
+
+	return res.status(201).json({signature: signed});
 }

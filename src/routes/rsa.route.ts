@@ -9,5 +9,8 @@ rsaRouter.route('/generateKeys')
 
 rsaRouter.route('/pubK_CE')
 	.get(rsa.getServerPubK)
-	
+
+rsaRouter.route('/sign')
+	.get(rsa.signMsg)
+
 export default rsaRouter;
