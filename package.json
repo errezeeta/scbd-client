@@ -1,7 +1,7 @@
 {
-  "name": "server_ciber",
+  "name": "ce_ciber",
   "version": "1.0.0",
-  "description": "",
+  "description": "Este repositorio contiene la entidad certificadora de nuestro proyecto de ciberseguridad",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -9,7 +9,7 @@
     "test": "env TS_NODE_PROJECT=\"tsconfig.testing.json\" mocha --require ts-node/register './test/*.ts'",
     "build-start": "npm run build && npm run test && npm start"
   },
-  "author": "",
+  "author": "Javier Ramirez",
   "license": "ISC",
   "dependencies": {
     "@scbd/rsa": "file:../rsa-module",
@@ -26,5 +26,16 @@
     "@types/node": "^16.11.38",
     "tslint": "^6.1.3",
     "typescript": "^4.7.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/errezeeta/scbd-ce.git"
+  },
+  "keywords": [
+    "ciber"
+  ],
+  "bugs": {
+    "url": "https://github.com/errezeeta/scbd-ce/issues"
+  },
+  "homepage": "https://github.com/errezeeta/scbd-ce#readme"
 }

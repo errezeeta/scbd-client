@@ -60,6 +60,7 @@ function getServerPubK(req, res) {
         const check = data_1.default.find((obj) => {
             return obj.username === username.username;
         });
+        //Si no encontramos el usuario en la lista (archivo data.ts), le denegaremos el acceso a la clave
         if (check === undefined) {
             const error = {
                 message: "You are not authorized"
