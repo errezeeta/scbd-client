@@ -1,5 +1,5 @@
 {
-  "name": "ce_ciber",
+  "name": "server_ciber",
   "version": "1.0.0",
   "description": "Este repositorio contiene la entidad certificadora de nuestro proyecto de ciberseguridad",
   "main": "dist/index.js",
