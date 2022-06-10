@@ -14,10 +14,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./app"));
 const rsa_1 = require("@scbd/rsa");
+const node_fetch_1 = __importDefault(require("node-fetch"));
+const express_1 = require("express");
 const bitLength = 1024;
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const keyPair = yield (0, rsa_1.generateKeys)(bitLength);
+        const keyCE = yield (0, node_fetch_1.default)('http://localhost:8080/rsa/pubk_ce', {
+            method: 'POST',
+            body: JSON.stringify({
+                username: 'admin',
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        console.log(yield express_1.response.json());
         const PORT = app_1.default.get('PORT');
         yield app_1.default.listen(PORT);
         console.log('Servidor abierto en: ', PORT);
