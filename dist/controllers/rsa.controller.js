@@ -38,6 +38,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.signMsg = exports.getServerPubK = exports.generateBothKeys = void 0;
 const rsa_1 = require("@scbd/rsa");
 const bic = __importStar(require("bigint-conversion"));
+const data_1 = __importDefault(require("../data"));
 const index_1 = __importDefault(require("../index"));
 const bitLength = 1024;
 function generateBothKeys(req, res) {
@@ -54,11 +55,24 @@ exports.generateBothKeys = generateBothKeys;
 function getServerPubK(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         //añadir condicion login
-        const key = {
-            e: bic.bigintToBase64(yield (yield index_1.default).publicKey.e),
-            n: bic.bigintToBase64(yield (yield index_1.default).publicKey.n)
-        };
-        return res.status(201).json(key);
+        console.log(req.body);
+        const username = req.body;
+        const check = data_1.default.find((obj) => {
+            return obj.username === username.username;
+        });
+        if (check === undefined) {
+            const error = {
+                message: "You are not authorized"
+            };
+            return res.status(401).json(error);
+        }
+        else {
+            const key = {
+                e: bic.bigintToBase64(yield (yield index_1.default).publicKey.e),
+                n: bic.bigintToBase64(yield (yield index_1.default).publicKey.n)
+            };
+            return res.status(201).json(key);
+        }
     });
 }
 exports.getServerPubK = getServerPubK;
