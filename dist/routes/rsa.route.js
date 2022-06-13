@@ -32,5 +32,7 @@ rsaRouter.route('/pubK_CE')
     .get(rsa.getServerPubK);
 rsaRouter.route('/sign')
     .get(rsa.signMsg);
+rsaRouter.route('/check')
+    .post(rsa.checkVote);
 exports.default = rsaRouter;
 //# sourceMappingURL=rsa.route.js.map

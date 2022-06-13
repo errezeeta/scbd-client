@@ -35,11 +35,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signMsg = exports.getServerPubK = exports.generateBothKeys = void 0;
+exports.checkVote = exports.signMsg = exports.getServerPubK = exports.generateBothKeys = void 0;
 const rsa_1 = require("@scbd/rsa");
 const bic = __importStar(require("bigint-conversion"));
 const data_1 = __importDefault(require("../data"));
 const index_1 = require("../index");
+const voto_1 = __importDefault(require("../models/voto"));
 const bitLength = 1024;
 function generateBothKeys(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -86,4 +87,14 @@ function signMsg(req, res) {
     });
 }
 exports.signMsg = signMsg;
+function checkVote(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const msg = (JSON.parse(JSON.stringify(req.body)));
+        console.log(msg.vote_encrypted);
+        const vote = new voto_1.default(msg.pubk_user, msg.pubK_user_signed, msg.vote_encrypted, msg.vote_signed);
+        console.log(vote);
+        return res.status(201).json('{"response": "vote"}');
+    });
+}
+exports.checkVote = checkVote;
 //# sourceMappingURL=rsa.controller.js.map

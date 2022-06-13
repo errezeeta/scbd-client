@@ -6,6 +6,7 @@ import * as bic from 'bigint-conversion';
 import userList from '../data';
 import { keys } from '../index';
 import { pubk_ce } from '../index';
+import Voto from '../models/voto';
 const bitLength = 1024;
 
 export async function generateBothKeys(req: Request, res: Response): Promise<Response>{
@@ -46,4 +47,12 @@ export async function signMsg(req: Request, res: Response): Promise<Response>{
 	const signed: string = await bic.bigintToBase64(privKey.sign(msg))
 
 	return res.status(201).json({signature: signed});
+}
+
+export async function checkVote(req: Request, res: Response): Promise<Response>{
+	const msg = (JSON.parse(JSON.stringify(req.body)));
+	console.log(msg.vote_encrypted);
+	const vote = new Voto(msg.pubk_user, msg.pubK_user_signed, msg.vote_encrypted, msg.vote_signed);
+	console.log(vote);
+	return res.status(201).json('{"response": "vote"}');
 }

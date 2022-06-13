@@ -12,6 +12,22 @@ class Voto {
         this.vote_signed = vote_signed
     }
 
+    public getpubk_user(): string {
+        return this.pubk_user;
+    }
+
+    public getpubk_user_signed(): string {
+        return this.pubK_user_signed;
+    }
+
+    public getvote_encypted(): string {
+        return this.vote_encrypted;
+    }
+
+    public getvote_signed(): string {
+        return this.vote_signed;
+    }
+
 }
 
 export default Voto;
