@@ -1,0 +1,1 @@
+{"version":3,"file":"voto.js","sourceRoot":"","sources":["../../src/models/voto.ts"],"names":[],"mappings":";;AAAA,MAAM,IAAI;IAON,YAAY,SAAiB,EAAE,gBAAwB,EAAE,cAAsB,EAAE,WAAmB;QAChG,IAAI,CAAC,SAAS,GAAG,SAAS;YAC1B,IAAI,CAAC,gBAAgB,GAAG,gBAAgB;YACxC,IAAI,CAAC,cAAc,GAAG,cAAc;YACpC,IAAI,CAAC,WAAW,GAAG,WAAW,CAAA;IAClC,CAAC;CAEJ;AAED,kBAAe,IAAI,CAAC"}

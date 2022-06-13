@@ -4,7 +4,8 @@ import {generateKeys, RsaPublicKey, RsaPrivateKey, RsaKeyPair} from '@scbd/rsa';
 import * as sha from 'object-sha';
 import * as bic from 'bigint-conversion';
 import userList from '../data';
-import keys from '../index';
+import { keys } from '../index';
+import { pubk_ce } from '../index';
 const bitLength = 1024;
 
 export async function generateBothKeys(req: Request, res: Response): Promise<Response>{

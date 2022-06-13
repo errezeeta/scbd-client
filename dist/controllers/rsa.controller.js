@@ -39,7 +39,7 @@ exports.signMsg = exports.getServerPubK = exports.generateBothKeys = void 0;
 const rsa_1 = require("@scbd/rsa");
 const bic = __importStar(require("bigint-conversion"));
 const data_1 = __importDefault(require("../data"));
-const index_1 = __importDefault(require("../index"));
+const index_1 = require("../index");
 const bitLength = 1024;
 function generateBothKeys(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -69,8 +69,8 @@ function getServerPubK(req, res) {
         }
         else {
             const key = {
-                e: bic.bigintToBase64(yield (yield index_1.default).publicKey.e),
-                n: bic.bigintToBase64(yield (yield index_1.default).publicKey.n)
+                e: bic.bigintToBase64(yield (yield index_1.keys).publicKey.e),
+                n: bic.bigintToBase64(yield (yield index_1.keys).publicKey.n)
             };
             return res.status(201).json(key);
         }
@@ -80,7 +80,7 @@ exports.getServerPubK = getServerPubK;
 function signMsg(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const msg = req.body;
-        const privKey = yield (yield index_1.default).privateKey;
+        const privKey = yield (yield index_1.keys).privateKey;
         const signed = yield bic.bigintToBase64(privKey.sign(msg));
         return res.status(201).json({ signature: signed });
     });
