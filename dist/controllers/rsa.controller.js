@@ -37,9 +37,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkVote = exports.signMsg = exports.getServerPubK = exports.generateBothKeys = void 0;
 const rsa_1 = require("@scbd/rsa");
+const sha = __importStar(require("object-sha"));
 const bic = __importStar(require("bigint-conversion"));
 const data_1 = __importDefault(require("../data"));
 const index_1 = require("../index");
+const index_2 = require("../index");
 const voto_1 = __importDefault(require("../models/voto"));
 const bitLength = 1024;
 function generateBothKeys(req, res) {
@@ -90,10 +92,25 @@ exports.signMsg = signMsg;
 function checkVote(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const msg = (JSON.parse(JSON.stringify(req.body)));
-        console.log(msg.vote_encrypted);
-        const vote = new voto_1.default(msg.pubk_user, msg.pubK_user_signed, msg.vote_encrypted, msg.vote_signed);
-        console.log(vote);
-        return res.status(201).json('{"response": "vote"}');
+        const pubk_user = new rsa_1.RsaPublicKey(msg.pubk_user_e, msg.pubk_user_n);
+        const vote = new voto_1.default(pubk_user, msg.pubK_user_signed, msg.vote_encrypted, msg.vote_signed);
+        //Verifico la firma viendo si coincide con el resumen de la clave publica del usuario
+        const resumen_firma = (yield index_2.pubk_ce).verify(msg.pubK_user_signed);
+        const resumen_clave = bic.textToBigint(yield sha.digest(vote.pubk_user.e));
+        if (resumen_firma === resumen_clave) {
+            //Verifico el voto viendo si coincide la firma del resumen del voto encriptado con el resumen del voto encriptau
+            const resumen_firma_voto = vote.pubk_user.verify(bic.textToBigint(vote.vote_signed));
+            const resumen_voto = bic.textToBigint(yield sha.digest(vote.vote_encrypted));
+            if (resumen_firma_voto === resumen_voto) {
+                //El voto es legítimo y vamos a efectuar paillier
+            }
+        }
+        else {
+            const error = {
+                message: "You are not authorized"
+            };
+            return res.status(401).json(error);
+        }
     });
 }
 exports.checkVote = checkVote;

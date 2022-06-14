@@ -51,8 +51,29 @@ export async function signMsg(req: Request, res: Response): Promise<Response>{
 
 export async function checkVote(req: Request, res: Response): Promise<Response>{
 	const msg = (JSON.parse(JSON.stringify(req.body)));
-	console.log(msg.vote_encrypted);
-	const vote = new Voto(msg.pubk_user, msg.pubK_user_signed, msg.vote_encrypted, msg.vote_signed);
-	console.log(vote);
-	return res.status(201).json('{"response": "vote"}');
+	const pubk_user = new RsaPublicKey(msg.pubk_user_e, msg.pubk_user_n);
+	const vote = new Voto(pubk_user, msg.pubK_user_signed, msg.vote_encrypted, msg.vote_signed);
+	//Verifico la firma viendo si coincide con el resumen de la clave publica del usuario
+	const resumen_firma = (await pubk_ce).verify(msg.pubK_user_signed);
+	const resumen_clave = bic.textToBigint(await sha.digest(vote.pubk_user.e));
+	if (resumen_firma === resumen_clave) {
+		//Verifico el voto viendo si coincide la firma del resumen del voto encriptado con el resumen del voto encriptau
+		const resumen_firma_voto = vote.pubk_user.verify(bic.textToBigint(vote.vote_signed));
+		const resumen_voto = bic.textToBigint(await sha.digest(vote.vote_encrypted));
+		if (resumen_firma_voto === resumen_voto) {
+			//El voto es legítimo y vamos a efectuar paillier
+		}
+		else {
+			const error = {
+				message: "You are not authorized"
+			}
+			return res.status(401).json(error);
+		}
+	}
+	else {
+		const error = {
+			message: "You are not authorized"
+		}
+		return res.status(401).json(error);
+	}
 }
