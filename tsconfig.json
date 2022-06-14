@@ -1,8 +1,11 @@
 {
     "compilerOptions": {
         "module": "commonjs",
+        "lib": [
+            "es2020", "esnext"
+          ],
         "esModuleInterop": true,
-        "target": "es6",
+        "target": "es2020",
         "rootDir": "./src",
         "noImplicitAny": true,
         "resolveJsonModule": true,

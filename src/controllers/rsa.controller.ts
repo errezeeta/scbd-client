@@ -3,9 +3,11 @@ import {Request, Response} from 'express';
 import {generateKeys, RsaPublicKey, RsaPrivateKey, RsaKeyPair} from '@scbd/rsa';
 import * as sha from 'object-sha';
 import * as bic from 'bigint-conversion';
+import * as paillier from './paillier.controller'
 import userList from '../data';
 import { keys } from '../index';
 import { pubk_ce } from '../index';
+import { paillierSys } from '../index';
 import Voto from '../models/voto';
 const bitLength = 1024;
 
@@ -62,6 +64,10 @@ export async function checkVote(req: Request, res: Response): Promise<Response>{
 		const resumen_voto = bic.textToBigint(await sha.digest(vote.vote_encrypted));
 		if (resumen_firma_voto === resumen_voto) {
 			//El voto es legítimo y vamos a efectuar paillier
+			paillier.sumNumber(bic.textToBigint(vote.vote_encrypted));
+			return res.status(201).json({
+				message: "Vote correcly realized"
+			});
 		}
 		else {
 			const error = {

@@ -1,20 +1,17 @@
 import app from "./app";
 import {generateKeys, RsaKeyPair, RsaPublicKey} from '@scbd/rsa';
-import * as bic from 'bigint-conversion';
-import userList from "./data";
 import fetch from 'node-fetch';
-import { response } from "express";
-import { json } from "stream/consumers";
-const bitLength = 1024
+import PaillierSys from "./models/paillier";
+import * as paillierBigint from 'paillier-bigint';
+const bitLength = 1024;
 
 
 async function main() {
-
-    const keyPair: RsaKeyPair = await generateKeys(bitLength);
-    const PORT = app.get('PORT');
-    await app.listen(PORT);
-    console.log('Servidor abierto en: ', PORT);
-    return keyPair;
+  const keyPair: RsaKeyPair = await generateKeys(bitLength);
+  const PORT = app.get('PORT');
+  await app.listen(PORT);
+  console.log('Servidor abierto en: ', PORT);
+  return keyPair;
 }
 
 async function getCEkeys() {
@@ -32,7 +29,15 @@ async function getCEkeys() {
     return pubk_ce;
 }
 
+async function startPaillier() {
+  const { publicKey, privateKey } = await paillierBigint.generateRandomKeys(bitLength);
+  const paillierSys = new PaillierSys(publicKey, privateKey);
+  return paillierSys;
+}
+
 const keys = main();
 const pubk_ce = getCEkeys();
+const paillierSys = startPaillier();
 export { keys };
 export { pubk_ce };
+export { paillierSys };
