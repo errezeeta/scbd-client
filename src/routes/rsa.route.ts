@@ -7,7 +7,7 @@ const rsaRouter = Router();
 rsaRouter.route('/generateKeys')
 	.get(rsa.generateBothKeys)
 
-rsaRouter.route('/pubK_CE')
+rsaRouter.route('/pubK_S')
 	.get(rsa.getServerPubK)
 
 rsaRouter.route('/sign')
@@ -18,5 +18,7 @@ rsaRouter.route('/vote')
 
 rsaRouter.route('/check')
 	.get(rsa.checkVotes)
+rsaRouter.route('/check')
+	.post(rsa.checkVotes)
 
 export default rsaRouter;
