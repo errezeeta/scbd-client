@@ -13,7 +13,10 @@ rsaRouter.route('/pubK_CE')
 rsaRouter.route('/sign')
 	.get(rsa.signMsg)
 
+rsaRouter.route('/vote')
+	.post(rsa.vote)
+
 rsaRouter.route('/check')
-	.post(rsa.checkVote)
+	.get(rsa.checkVotes)
 
 export default rsaRouter;

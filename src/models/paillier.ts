@@ -1,4 +1,5 @@
 import * as paillierBigint from 'paillier-bigint';
+import * as bic from 'bigint-conversion';
 
 
 export class PaillierSys {
@@ -12,6 +13,7 @@ export class PaillierSys {
         this.privateKey= privk;
         this.count = 0n;
     }
+
 }
 
 export default PaillierSys;
