@@ -4,6 +4,7 @@ import * as sha from 'object-sha';
 import * as bic from 'bigint-conversion';
 import * as bcu from 'bigint-crypto-utils';
 import fetch from 'node-fetch';
+import * as paillierBigint from 'paillier-bigint';
 const bitLength = 1024;
 const user = "Messi";
 const pass= "10";
@@ -45,7 +46,7 @@ async function login(): Promise <RsaPublicKey> {
     console.log(boolean);
 }
 
-async function getCert(): Promise <String> {
+async function getCert(keys: RsaKeyPair, keysCE: RsaPublicKey ): Promise <String> {
     const intent = (await keys).publicKey.toJsonString();
     const j = sha.digest(intent);
     console.log("PRUEBA: " +await j);
@@ -68,7 +69,7 @@ async function getCert(): Promise <String> {
     const s = bic.base64ToBigint(await parsedData.message) *bcu.modInv(r, (await keysCE).n);
     const v = (await keysCE).verify(s);
     console.log(bic.bigintToBase64(v));
-    return 
+    return (bic.bigintToBase64(s));
 
 
     // const intent = (await keys).publicKey.toJsonString();
@@ -89,6 +90,43 @@ async function getCert(): Promise <String> {
     // return 
 }
 
+async function sendVote(keys: RsaKeyPair, keysCE: RsaPublicKey, vote: string, pubK_user_signed: String) {
+  const response = await fetch("http://localhost:3000/rsa/paillierkeys", {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json',
+    } 
+    });
+  const data = await response.json();
+  const parsedData = await (JSON.parse(JSON.stringify(await data)));
+  console.log("las keys son :" + bic.base64ToBigint(parsedData.g));
+  const paillierkeys = new paillierBigint.PublicKey(bic.base64ToBigint(await parsedData.n), bic.base64ToBigint(await parsedData.g));
+  const encrypted_vote = paillierkeys.encrypt(bic.base64ToBigint(vote));
+  const vote_hash = sha.digest(vote,'SHA-256');
+  const signed_hash_vote= keys.privateKey.sign(bic.base64ToBigint(await vote_hash));
+  const json = {
+		pubk_user_e: bic.bigintToBase64(keys.publicKey.e),
+    pubk_user_n: bic.bigintToBase64(keys.publicKey.n),
+    pubK_user_signed: (await pubK_user_signed),
+    encrypt_pubks: bic.bigintToBase64(await encrypted_vote),
+    sign_privc: bic.bigintToBase64(await signed_hash_vote)
+	}
+
+  console.log("el json es: "+JSON.stringify(json));
+  const secondRes = await fetch("http://localhost:3000/rsa/vote", {
+      method: 'POST',
+      body: JSON.stringify(json),
+      headers: {'Content-Type': 'application/json',
+    } 
+    });
+  const finaldata = await secondRes.json();
+  const parsedfinal = await (JSON.parse(JSON.stringify(await finaldata)));
+}
+
+async function main() {
 const keys = keyGen();
 const keysCE = login();
-const getCertificate = getCert(); 
+const cert = getCert(await keys, await keysCE);
+const vote = sendVote(await keys, await keysCE, "000001", await cert);
+}
+
+main();

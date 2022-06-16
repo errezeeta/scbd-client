@@ -26,43 +26,126 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.paillierSys = exports.pubk_ce = exports.keys = void 0;
-const app_1 = __importDefault(require("./app"));
 const rsa_1 = require("@scbd/rsa");
+const sha = __importStar(require("object-sha"));
+const bic = __importStar(require("bigint-conversion"));
+const bcu = __importStar(require("bigint-crypto-utils"));
 const node_fetch_1 = __importDefault(require("node-fetch"));
-const paillier_1 = __importDefault(require("./models/paillier"));
 const paillierBigint = __importStar(require("paillier-bigint"));
 const bitLength = 1024;
-async function main() {
+const user = "Messi";
+const pass = "10";
+async function keyGen() {
     const keyPair = await (0, rsa_1.generateKeys)(bitLength);
-    const PORT = app_1.default.get('PORT');
-    await app_1.default.listen(PORT);
-    console.log('Servidor abierto en: ', PORT);
     return keyPair;
 }
-async function getCEkeys() {
-    const response = await (0, node_fetch_1.default)("http://localhost:8080/rsa/pubk_ce", {
+async function login() {
+    var boolean = false;
+    const response = await (0, node_fetch_1.default)("http://localhost:8080/rsa/login", {
         method: 'POST',
         body: JSON.stringify({
-            username: 'admin',
+            username: user,
+            password: pass,
         }),
         headers: { 'Content-Type': 'application/json',
         }
     });
     const data = await response.json();
-    const pubk_ceJS = (JSON.parse(JSON.stringify(data)));
-    const pubk_ce = new rsa_1.RsaPublicKey(pubk_ceJS.e, pubk_ceJS.n);
-    return pubk_ce;
+    const parsedData = await (JSON.parse(JSON.stringify(data)));
+    if (await parsedData.message === "login complete") {
+        boolean = true;
+        const secondRes = await (0, node_fetch_1.default)("http://localhost:8080/rsa/pubK_CE", {
+            method: 'POST',
+            body: JSON.stringify({
+                username: user,
+                password: pass,
+            }),
+            headers: { 'Content-Type': 'application/json',
+            }
+        });
+        const res = await secondRes.json();
+        const parsedKeys = await (JSON.parse(JSON.stringify(res)));
+        const keysCE = new rsa_1.RsaPublicKey(bic.base64ToBigint(parsedKeys.e), bic.base64ToBigint(parsedKeys.n));
+        return keysCE;
+    }
+    console.log(boolean);
 }
-async function startPaillier() {
-    const { publicKey, privateKey } = await paillierBigint.generateRandomKeys(bitLength);
-    const paillierSys = new paillier_1.default(publicKey, privateKey);
-    return paillierSys;
+async function getCert(keys, keysCE) {
+    const intent = (await keys).publicKey.toJsonString();
+    const j = sha.digest(intent);
+    console.log("PRUEBA: " + await j);
+    const msgBI = bic.base64ToBigint(await j);
+    console.log(msgBI);
+    const r = bcu.randBetween((await keys).publicKey.n - 1n);
+    const blindMsg = msgBI * bcu.modPow(r, (await keysCE).e, (await keysCE).n);
+    const blindMsgB64 = bic.bigintToBase64(blindMsg);
+    const response = await (0, node_fetch_1.default)("http://localhost:8080/rsa/sign", {
+        method: 'POST',
+        body: JSON.stringify({
+            message: blindMsgB64,
+        }),
+        headers: { 'Content-Type': 'application/json',
+        }
+    });
+    const data = await response.json();
+    const parsedData = await (JSON.parse(JSON.stringify(data)));
+    console.log("La data dcuelta es: " + await parsedData.message);
+    const s = bic.base64ToBigint(await parsedData.message) * bcu.modInv(r, (await keysCE).n);
+    const v = (await keysCE).verify(s);
+    console.log(bic.bigintToBase64(v));
+    return (bic.bigintToBase64(s));
+    // const intent = (await keys).publicKey.toJsonString();
+    // const nenB64 = bic.bigintToBase64((await keys).publicKey.n);
+    // const j = sha.digest(intent);
+    // console.log("PRUEBA: " +await j);
+    // const m = (await keys).publicKey.n;
+    // const msgBI = bic.base64ToBigint(await j);
+    // console.log(msgBI);
+    // const r = bcu.randBetween((await keys).publicKey.n - 1n)
+    // const blindMsg = ((await keys).publicKey.encrypt(r)*msgBI)%((await keys).publicKey.n)
+    // const bs = (await keys).privateKey.sign (blindMsg)
+    // const s= bs * bcu.modInv(r, (await keys).publicKey.n)
+    // const v = (await keys).publicKey.verify(s)
+    // console.log(v)
+    // const msb = bic.bigintToBase64(v);
+    // console.log(msb);
+    // return 
 }
-const keys = main();
-exports.keys = keys;
-const pubk_ce = getCEkeys();
-exports.pubk_ce = pubk_ce;
-const paillierSys = startPaillier();
-exports.paillierSys = paillierSys;
+async function sendVote(keys, keysCE, vote, pubK_user_signed) {
+    const response = await (0, node_fetch_1.default)("http://localhost:3000/rsa/paillierkeys", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json',
+        }
+    });
+    const data = await response.json();
+    const parsedData = await (JSON.parse(JSON.stringify(await data)));
+    console.log("las keys son :" + bic.base64ToBigint(parsedData.g));
+    const paillierkeys = new paillierBigint.PublicKey(bic.base64ToBigint(await parsedData.n), bic.base64ToBigint(await parsedData.g));
+    const encrypted_vote = paillierkeys.encrypt(bic.base64ToBigint(vote));
+    const vote_hash = sha.digest(vote, 'SHA-256');
+    const signed_hash_vote = keys.privateKey.sign(bic.base64ToBigint(await vote_hash));
+    const json = {
+        pubk_user_e: bic.bigintToBase64(keys.publicKey.e),
+        pubk_user_n: bic.bigintToBase64(keys.publicKey.n),
+        pubK_user_signed: (await pubK_user_signed),
+        encrypt_pubks: bic.bigintToBase64(await encrypted_vote),
+        sign_privc: bic.bigintToBase64(await signed_hash_vote)
+    };
+    console.log("el json es: " + JSON.stringify(json));
+    const secondRes = await (0, node_fetch_1.default)("http://localhost:3000/rsa/vote", {
+        method: 'POST',
+        body: JSON.stringify(json),
+        headers: { 'Content-Type': 'application/json',
+        }
+    });
+    const finaldata = await secondRes.json();
+    const parsedfinal = await (JSON.parse(JSON.stringify(await finaldata)));
+}
+async function main() {
+    const keys = keyGen();
+    const keysCE = login();
+    const cert = getCert(await keys, await keysCE);
+    const vote = sendVote(await keys, await keysCE, "000001", await cert);
+}
+main();
 //# sourceMappingURL=index.js.map
