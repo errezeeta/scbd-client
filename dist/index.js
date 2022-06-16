@@ -125,7 +125,7 @@ async function sendVote(keys, keysCE, vote, pubK_user_signed) {
     const paillierkeys = new paillierBigint.PublicKey(bic.base64ToBigint(await parsedData.n), bic.base64ToBigint(await parsedData.g));
     const encrypted_vote = paillierkeys.encrypt(bic.base64ToBigint(vote));
     console.log("voto encriptau: " + bic.bigintToBase64(encrypted_vote));
-    const vote_hash = sha.digest(vote, 'SHA-256');
+    const vote_hash = sha.digest(bic.bigintToBase64(encrypted_vote), 'SHA-256');
     console.log("hash: " + await vote_hash);
     const signed_hash_vote = keys.privateKey.sign(bic.base64ToBigint(await vote_hash));
     console.log(await bic.bigintToBase64(signed_hash_vote));
@@ -152,7 +152,7 @@ async function main() {
     const keys = keyGen();
     const keysCE = login();
     const cert = getCert(await keys, await keysCE);
-    const vote = sendVote(await keys, await keysCE, "001000/", await cert);
+    const vote = sendVote(await keys, await keysCE, "00010000", await cert);
 }
 main();
 //# sourceMappingURL=index.js.map
